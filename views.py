@@ -1,40 +1,66 @@
-"""end points for the questions"""
-from flask import jsonify
-from flask import request, Request
+"""
+   Module for defining views
+"""
+
+from flask import jsonify, request
 from flask.views import MethodView
+from models import Entries
+
+
+event_entries = Entries()
+
 
 class AllDairyEntries(MethodView):
-    """class for getting questions"""
-    dairies = []
-
-    def get(self, event_id):
-        """
-        method for all get requests"
-        """
-        if event_id == None:
-            return jsonify({'entries':[entry for entry in self.dairies]})  #checks entries in ourlist diaries
-        
-        entry = [entry for entry in self.dairies if entry['event_id'] == event_id] #checks the events in ourlist and returns the specific event with corresponding event_id
-        return jsonify({'entry' : entry}) #return entry in position zero
+    """
+       class for defining views
+    """
 
     def post(self):
-        """method for all post requests"""
-        if not request.json:
-            return jsonify({'error':"not a json request"}), 400
-        else:
-            entry = {'title':request.json['title'], 'description' : request.json['description'],
-                        'event_id':request.json['event_id']}
-            self.dairies.append(entry)
-            return jsonify({'entries' : self.dairies}),201
+        """
+           method to post all events
+        """
+      
+        keys = ("title",  "description")
+        
+        if not set(keys).issubset(set(request.json)):
+            return jsonify({'Alert':'fill all fields'}) 
+            
+        
+        if event_entries.exit_entry(request.json['title']):
+                return jsonify({'Alert':'your entry has already been input'})
+    
+        post_data = request.get_json()
+        title = request.json['title']
+        description = request.json['description'] 
+        id = 'id' 
 
-    def update(self, event_id):
-        for entry in self.dairies: 
-            if event_id == entry['event_id']:
-                event_json= request.get_json()
-                entry['title']= title
-                return {event_id:"placed"}
+        
+        event_entries.add_entry(id, title, description)
 
-    def put(self, event_id):
-        return jsonify ({"entries":AllDairyEntries.update(self,event_id)}),200
+        response_object =  event_entries.__dict__
+        
+        return jsonify(response_object), 201
 
 
+    def get(self, event_id=None):
+        """
+           method for all get requests and single request
+        """
+        if event_id is None:
+            if event_entries.get_all_entries() is True:
+                return jsonify({'events':'No new entry,Please enter an event'})
+            return jsonify({'events': event_entries.get_all_entries()}), 200
+        return jsonify({'events': event_entries.get_one_entry(event_id)}), 200
+    def put(self,event_id):
+        """
+            method for puts/cancels events
+           param: route /api/events/<int:event_id>/cancel
+           response: json data
+        """
+        post_data = request.get_json()
+
+        key= 'title'
+        if key not in post_data:
+            return jsonify({'alert':'input feilds'})
+        
+        return jsonify({'new title':event_entries.update(event_id)}),200
