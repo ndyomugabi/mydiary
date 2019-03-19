@@ -18,5 +18,9 @@ class GetUrls:
         event.add_url_rule('/api/v1/entries/<int:event_id>/',
                               view_func=AllDairyEntries.as_view('getoneentry'),
                               methods=['GET',])
-        event.add_url_rule('/api/v1/entries/',view_func=AllDairyEntries.as_view('postentry'), methods=['POST',])
-        event.add_url_rule('/api/v1/entries/<int:event_id>/', view_func= AllDairyEntries.as_view('modifyanentry'), methods=['PUT',])
+        event.add_url_rule('/api/v1/entries/',
+                            view_func=AllDairyEntries.as_view('postentry'),
+                            methods=['POST',])
+        event.add_url_rule('/api/v1/entries/<int:event_id>/', 
+                            view_func= AllDairyEntries.as_view('modifyanentry'), 
+                            methods=['PUT',])

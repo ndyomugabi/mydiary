@@ -53,7 +53,7 @@ class AllDairyEntries(MethodView):
         return jsonify({'events': event_entries.get_one_entry(event_id)}), 200
     def put(self,event_id):
         """
-            method for puts/cancels events
+            method for puts events
            param: route /api/events/<int:event_id>/cancel
            response: json data
         """
